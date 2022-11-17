@@ -9,6 +9,9 @@ from libs.python.helperServiceInstances import createServiceKey, deleteServiceIn
 from libs.python.helperGeneric import buildUrltoSubaccount, getNamingPatternForServiceSuffix, createDirectoryName, createSubaccountName, createSubdomainID, createOrgName, save_collected_metadata
 from libs.python.helperFileAccess import writeKubeConfigFileToDefaultDir
 from libs.python.helperEnvKyma import extractKymaDashboardUrlFromEnvironmentDataEntry, getKymaEnvironmentInfoByClusterName, getKymaEnvironmentStatusFromEnvironmentDataEntry, extractKymaKubeConfigUrlFromEnvironmentDataEntry, getKymaEnvironmentIdByClusterName
+from libs.python.helperServiceInstances import createServiceInstance, setInstanceNames
+from libs.python.helperExecutionSequence import buildDependencyTree
+from anytree import Node
 
 import os
 import sys
@@ -714,8 +717,14 @@ class BTPUSECASE:
 
         ##################################################################################
         # Initiate all app subscriptions
+        # Initiate creation of all services instances
         ##################################################################################
-        initiateAppSubscriptions(self)
+        createServiceInstancesAndAppSubscriptions(self)
+
+        ##################################################################################
+        # Initiate all app subscriptions
+        ##################################################################################
+        # initiateAppSubscriptions(self)
 
         ##################################################################################
         # Initiate creation of all services instances
@@ -1158,9 +1167,13 @@ def assign_entitlement(btpUsecase: BTPUSECASE, service):
     return returnCode
 
 
-def subscribe_app_to_subaccount(btpUsecase: BTPUSECASE, app, plan):
+def subscribe_app_to_subaccount(btpUsecase: BTPUSECASE, appSubscription):
     accountMetadata = btpUsecase.accountMetadata
     subaccountid = accountMetadata["subaccountid"]
+
+    app = appSubscription.name
+    plan = appSubscription.plan
+    parameters = appSubscription.parameters
 
     command = "btp subscribe accounts/subaccount \
     --subaccount '" + subaccountid + "' \
@@ -1169,6 +1182,10 @@ def subscribe_app_to_subaccount(btpUsecase: BTPUSECASE, app, plan):
     if plan is not None:
         # For custom apps a plan can be none - this is safeguarded when checking if account is capable of usecase
         command = command + " --plan '" + plan + "'"
+
+    # add parameters in case they are provided for the app subscription
+    if parameters:
+        command = command + " --parameters '" + dictToString(parameters) + "'"
 
     isAlreadySubscribed = checkIfAppIsSubscribed(btpUsecase, app, plan)
     if isAlreadySubscribed is False:
@@ -1240,17 +1257,35 @@ def doAllEntitlements(btpUsecase: BTPUSECASE, allItems):
         assign_entitlement(btpUsecase, service)
 
 
-def initiateAppSubscriptions(btpUsecase: BTPUSECASE):
-    if btpUsecase.definedAppSubscriptions is not None and len(btpUsecase.definedAppSubscriptions) > 0:
+def createServiceInstancesAndAppSubscriptions(btpUsecase: BTPUSECASE):
+    log.header("Initiate subscription to apps and creation of service instances")
 
-        log.header("Initiate subscriptions to apps")
+    # Ensure proper handling of service instance names
+    if btpUsecase.definedServices:
+        setInstanceNames(btpUsecase)
 
-        # Now do all the subscriptions
-        for appSubscription in btpUsecase.definedAppSubscriptions:
-            appName = appSubscription.name
-            appPlan = appSubscription.plan
-            if appSubscription.entitleonly is False:
-                subscribe_app_to_subaccount(btpUsecase, appName, appPlan)
+    serviceDependencyTree = buildDependencyTree(btpUsecase)
+
+    # Execute the creation of app subscriptions and service intances
+    for item in serviceDependencyTree:
+        for leaf in item.leaves:
+
+            # If the service has no dependencies, there are no leaves in the
+            # dependency tree and the service can be subscribed or instanciated
+            # without any pre-requisites to the existence of other services or
+            # app subscriptions
+            thisService = leaf.name
+            # Initiate the app subscriptions
+            if thisService.category == "APPLICATION":
+                if thisService.entitleonly is False:
+                    subscribe_app_to_subaccount(btpUsecase, thisService)
+
+            # Initiate the creationg of the service instance
+            if thisService.category == "SERVICE" or thisService.category == "ELASTIC_SERVICE":
+                if thisService.entitleonly is False:
+                    createServiceInstance(btpUsecase, thisService, thisService.targetenvironment, thisService.category)
+
+    log.header("Initiated subscription to apps and creation of service instances")
 
 
 def get_subscription_status(btpUsecase: BTPUSECASE, app):

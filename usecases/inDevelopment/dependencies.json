@@ -1,0 +1,105 @@
+{
+    "$schema": "https://raw.githubusercontent.com/SAP-samples/btp-setup-automator/main/libs/btpsa-usecase.json",
+    "aboutThisUseCase": {
+        "name": "Safeguard key business processes with resilient applications on SAP BTP",
+        "description": "This usecase complements an existing business process in an SAP solution - currently SAP S/4HANA - with additional business process steps",
+        "author": "maximilian.streifenender@sap.com",
+        "testStatus": "tested successfully",
+        "usageStatus": "READY TO BE USED",
+        "relatedLinks": [
+            "https://github.com/SAP-samples/btp-build-resilient-apps/tree/extension"
+        ]
+    },
+    "services": [
+        {
+            "name": "connectivity",
+            "plan": "lite",
+            "category": "SERVICE",
+            "requiredServices": [
+                "destination"
+            ]
+        },
+        {
+            "name": "destination",
+            "plan": "lite",
+            "category": "SERVICE",
+            "requiredApplications": ["sapappstudio"]
+        },
+        {
+            "name": "sapappstudio",
+            "plan": "standard-edition",
+            "category": "APPLICATION"
+        }
+    ],
+    "assignrolecollections": [
+        {
+            "name": "Global Account Administrator",
+            "type": "account",
+            "level": "global account",
+            "assignedUserGroupsFromParameterFile": [
+                "admins"
+            ]
+        },
+        {
+            "name": "Subaccount Administrator",
+            "type": "account",
+            "level": "sub account",
+            "assignedUserGroupsFromParameterFile": [
+                "admins"
+            ]
+        },
+        {
+            "name": "Subaccount Service Administrator",
+            "type": "account",
+            "level": "sub account",
+            "assignedUserGroupsFromParameterFile": [
+                "admins"
+            ]
+        },
+        {
+            "name": "SpaceManager",
+            "type": "cloudfoundry",
+            "level": "space",
+            "assignedUserGroupsFromParameterFile": [
+                "admins",
+                "developers"
+            ]
+        },
+        {
+            "name": "SpaceDeveloper",
+            "type": "cloudfoundry",
+            "level": "space",
+            "assignedUserGroupsFromParameterFile": [
+                "admins",
+                "developers"
+            ]
+        },
+        {
+            "name": "SpaceAuditor",
+            "type": "cloudfoundry",
+            "level": "space",
+            "assignedUserGroupsFromParameterFile": [
+                "admins",
+                "developers"
+            ]
+        },
+        {
+            "name": "OrgManager",
+            "type": "cloudfoundry",
+            "level": "org",
+            "assignedUserGroupsFromParameterFile": [
+                "admins",
+                "testers"
+            ]
+        },
+        {
+            "name": "OrgAuditor",
+            "type": "cloudfoundry",
+            "level": "org",
+            "assignedUserGroupsFromParameterFile": [
+                "admins",
+                "auditors"
+            ]
+        }
+    ]
+}

@@ -239,6 +239,12 @@ Checkout [the issues section in this repo](https://github.com/SAP-samples/btp-se
 
 🚀 - If you have an idea for improvement or a feature request, please open [feature-request](https://github.com/SAP-samples/btp-setup-automator/issues/new?assignees=&labels=enhancement&template=feature-request.yml&title=%5BFEATURE+REQUEST%5D+%3Ctitle%3E).
 
+## btp-setup-automator at SAP TechEd 2022
+
+Checkout a demo of the btp-setup-automator at SAP TechEd 2022 and how it is related to the [btp-service-metadata repository](https://github.com/SAP-samples/btp-service-metadata)
+
+[![video with btp-setup-automator at SAP TechEd 2022](https://img.youtube.com/vi/G0cdAdkmX8A/0.jpg)](https://www.youtube.com/watch?v=G0cdAdkmX8A&start=1056&end=1501)
+
 ## Contributions
 
 Checkout the [CONTRIBUTING.md file](CONTRIBUTING.md) for more details on how to contribute to this open source project.

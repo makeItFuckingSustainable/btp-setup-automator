@@ -281,6 +281,12 @@
                             }
                         }
                     },
+                    "requiredApplications": {
+                        "type": "array",
+                        "description": "list of app subscriptions that need to be instantiated before instantiating this service",
+                        "title": "list of app subscriptions that need to be instantiated before instantiating this service",
+                        "default": []
+                    },
                     "requiredServices": {
                         "type": "array",
                         "description": "list of services that need to be instantiated before instantiating this service",

@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 
 class BTPSERVICE:
     def __init__(self, paramDefinitionServices, definedUsecaseService, btpUsecase):
+        self.executionStatus = None
         for key, value in paramDefinitionServices.items():
             argument = key
             default = value.get("default")
